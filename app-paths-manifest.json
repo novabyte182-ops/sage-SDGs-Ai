@@ -1,0 +1,17 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/about/page": "app/about/page.js",
+  "/api/sdg-agent/route": "app/api/sdg-agent/route.js",
+  "/dashboard/admin/page": "app/dashboard/admin/page.js",
+  "/aqualife/page": "app/aqualife/page.js",
+  "/dashboard/client/page": "app/dashboard/client/page.js",
+  "/dataset/page": "app/dataset/page.js",
+  "/dashboard/user/page": "app/dashboard/user/page.js",
+  "/demo/page": "app/demo/page.js",
+  "/deployment/page": "app/deployment/page.js",
+  "/education/page": "app/education/page.js",
+  "/mindcare/page": "app/mindcare/page.js",
+  "/modules/page": "app/modules/page.js",
+  "/page": "app/page.js",
+  "/roadmap/page": "app/roadmap/page.js"
+}
