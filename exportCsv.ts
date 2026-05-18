@@ -1,0 +1,25 @@
+export function convertToCsv<T extends object>(rows: T[]) {
+  if (!rows.length) return "";
+  const headers = Object.keys(rows[0] as Record<string, unknown>);
+  const escape = (value: unknown) => `"${String(value ?? "").replace(/"/g, '""')}"`;
+  return [
+    headers.join(","),
+    ...rows.map((row) => {
+      const record = row as Record<string, unknown>;
+      return headers.map((header) => escape(record[header])).join(",");
+    })
+  ].join("\n");
+}
+
+export function downloadCsv(filename: string, csv: string) {
+  if (typeof window === "undefined") return;
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
