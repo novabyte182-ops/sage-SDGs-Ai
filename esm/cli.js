@@ -1,12 +1,10 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }/* eslint-disable no-console */
-var _commander = require('commander'); var _commander2 = _interopRequireDefault(_commander);
-var _tinyglobby = require('tinyglobby');
-var _fs = require('mz/fs');
-var _path = require('path');
+/* eslint-disable no-console */
+import commander from "commander";
+import {glob} from "tinyglobby";
+import {exists, mkdir, readdir, readFile, stat, writeFile} from "mz/fs";
+import {dirname, join, relative} from "path";
 
-var _index = require('./index');
-
-
+import { transform} from "./index";
 
 
 
@@ -16,8 +14,10 @@ var _index = require('./index');
 
 
 
- function run() {
-  _commander2.default
+
+
+export default function run() {
+  commander
     .description(`Sucrase: super-fast Babel alternative.`)
     .usage("[options] <srcDir>")
     .option(
@@ -60,12 +60,12 @@ var _index = require('./index');
     .option("--enable-legacy-babel5-module-interop", "Use Babel 5 ESM/CJS interop strategy.")
     .parse(process.argv);
 
-  if (_commander2.default.project) {
+  if (commander.project) {
     if (
-      _commander2.default.outDir ||
-      _commander2.default.transforms ||
-      _commander2.default.args[0] ||
-      _commander2.default.enableLegacyTypescriptModuleInterop
+      commander.outDir ||
+      commander.transforms ||
+      commander.args[0] ||
+      commander.enableLegacyTypescriptModuleInterop
     ) {
       console.error(
         "If TypeScript project is specified, out directory, transforms, source " +
@@ -74,42 +74,42 @@ var _index = require('./index');
       process.exit(1);
     }
   } else {
-    if (!_commander2.default.outDir) {
+    if (!commander.outDir) {
       console.error("Out directory is required");
       process.exit(1);
     }
 
-    if (!_commander2.default.transforms) {
+    if (!commander.transforms) {
       console.error("Transforms option is required.");
       process.exit(1);
     }
 
-    if (!_commander2.default.args[0]) {
+    if (!commander.args[0]) {
       console.error("Source directory is required.");
       process.exit(1);
     }
   }
 
   const options = {
-    outDirPath: _commander2.default.outDir,
-    srcDirPath: _commander2.default.args[0],
-    project: _commander2.default.project,
-    outExtension: _commander2.default.outExtension,
-    excludeDirs: _commander2.default.excludeDirs ? _commander2.default.excludeDirs.split(",") : [],
-    quiet: _commander2.default.quiet,
+    outDirPath: commander.outDir,
+    srcDirPath: commander.args[0],
+    project: commander.project,
+    outExtension: commander.outExtension,
+    excludeDirs: commander.excludeDirs ? commander.excludeDirs.split(",") : [],
+    quiet: commander.quiet,
     sucraseOptions: {
-      transforms: _commander2.default.transforms ? _commander2.default.transforms.split(",") : [],
-      disableESTransforms: _commander2.default.disableEsTransforms,
-      jsxRuntime: _commander2.default.jsxRuntime,
-      production: _commander2.default.production,
-      jsxImportSource: _commander2.default.jsxImportSource,
-      jsxPragma: _commander2.default.jsxPragma || "React.createElement",
-      jsxFragmentPragma: _commander2.default.jsxFragmentPragma || "React.Fragment",
-      keepUnusedImports: _commander2.default.keepUnusedImports,
-      preserveDynamicImport: _commander2.default.preserveDynamicImport,
-      injectCreateRequireForImportRequire: _commander2.default.injectCreateRequireForImportRequire,
-      enableLegacyTypeScriptModuleInterop: _commander2.default.enableLegacyTypescriptModuleInterop,
-      enableLegacyBabel5ModuleInterop: _commander2.default.enableLegacyBabel5ModuleInterop,
+      transforms: commander.transforms ? commander.transforms.split(",") : [],
+      disableESTransforms: commander.disableEsTransforms,
+      jsxRuntime: commander.jsxRuntime,
+      production: commander.production,
+      jsxImportSource: commander.jsxImportSource,
+      jsxPragma: commander.jsxPragma || "React.createElement",
+      jsxFragmentPragma: commander.jsxFragmentPragma || "React.Fragment",
+      keepUnusedImports: commander.keepUnusedImports,
+      preserveDynamicImport: commander.preserveDynamicImport,
+      injectCreateRequireForImportRequire: commander.injectCreateRequireForImportRequire,
+      enableLegacyTypeScriptModuleInterop: commander.enableLegacyTypescriptModuleInterop,
+      enableLegacyBabel5ModuleInterop: commander.enableLegacyBabel5ModuleInterop,
     },
   };
 
@@ -117,7 +117,7 @@ var _index = require('./index');
     process.exitCode = 1;
     console.error(e);
   });
-} exports.default = run;
+}
 
 
 
@@ -132,18 +132,18 @@ async function findFiles(options) {
     ? [".ts", ".tsx"]
     : [".js", ".jsx"];
 
-  if (!(await _fs.exists.call(void 0, outDirPath))) {
-    await _fs.mkdir.call(void 0, outDirPath);
+  if (!(await exists(outDirPath))) {
+    await mkdir(outDirPath);
   }
 
   const outArr = [];
-  for (const child of await _fs.readdir.call(void 0, srcDirPath)) {
+  for (const child of await readdir(srcDirPath)) {
     if (["node_modules", ".git"].includes(child) || options.excludeDirs.includes(child)) {
       continue;
     }
-    const srcChildPath = _path.join.call(void 0, srcDirPath, child);
-    const outChildPath = _path.join.call(void 0, outDirPath, child);
-    if ((await _fs.stat.call(void 0, srcChildPath)).isDirectory()) {
+    const srcChildPath = join(srcDirPath, child);
+    const outChildPath = join(outDirPath, child);
+    if ((await stat(srcChildPath)).isDirectory()) {
       const innerOptions = {...options};
       innerOptions.srcDirPath = srcChildPath;
       innerOptions.outDirPath = outChildPath;
@@ -162,11 +162,11 @@ async function findFiles(options) {
 }
 
 async function runGlob(options) {
-  const tsConfigPath = _path.join.call(void 0, options.project, "tsconfig.json");
+  const tsConfigPath = join(options.project, "tsconfig.json");
 
   let str;
   try {
-    str = await _fs.readFile.call(void 0, tsConfigPath, "utf8");
+    str = await readFile(tsConfigPath, "utf8");
   } catch (err) {
     console.error("Could not find project tsconfig.json");
     console.error(`  --project=${options.project}`);
@@ -180,11 +180,11 @@ async function runGlob(options) {
   const files = json.files;
   const include = json.include;
 
-  const absProject = _path.join.call(void 0, process.cwd(), options.project);
+  const absProject = join(process.cwd(), options.project);
   const outDirs = [];
 
-  if (!(await _fs.exists.call(void 0, options.outDirPath))) {
-    await _fs.mkdir.call(void 0, options.outDirPath);
+  if (!(await exists(options.outDirPath))) {
+    await mkdir(options.outDirPath);
   }
 
   if (files) {
@@ -196,11 +196,11 @@ async function runGlob(options) {
         continue;
       }
 
-      const srcFile = _path.join.call(void 0, absProject, file);
-      const outFile = _path.join.call(void 0, options.outDirPath, file);
+      const srcFile = join(absProject, file);
+      const outFile = join(options.outDirPath, file);
       const outPath = outFile.replace(/\.\w+$/, `.${options.outExtension}`);
 
-      const outDir = _path.dirname.call(void 0, outPath);
+      const outDir = dirname(outPath);
       if (!outDirs.includes(outDir)) {
         outDirs.push(outDir);
       }
@@ -213,7 +213,7 @@ async function runGlob(options) {
   }
   if (include) {
     for (const pattern of include) {
-      const globFiles = await _tinyglobby.glob.call(void 0, _path.join.call(void 0, absProject, pattern), {expandDirectories: false});
+      const globFiles = await glob(join(absProject, pattern), {expandDirectories: false});
       for (const file of globFiles) {
         if (!file.endsWith(".ts") && !file.endsWith(".js")) {
           continue;
@@ -222,11 +222,11 @@ async function runGlob(options) {
           continue;
         }
 
-        const relativeFile = _path.relative.call(void 0, absProject, file);
-        const outFile = _path.join.call(void 0, options.outDirPath, relativeFile);
+        const relativeFile = relative(absProject, file);
+        const outFile = join(options.outDirPath, relativeFile);
         const outPath = outFile.replace(/\.\w+$/, `.${options.outExtension}`);
 
-        const outDir = _path.dirname.call(void 0, outPath);
+        const outDir = dirname(outPath);
         if (!outDirs.includes(outDir)) {
           outDirs.push(outDir);
         }
@@ -240,8 +240,8 @@ async function runGlob(options) {
   }
 
   for (const outDirPath of outDirs) {
-    if (!(await _fs.exists.call(void 0, outDirPath))) {
-      await _fs.mkdir.call(void 0, outDirPath);
+    if (!(await exists(outDirPath))) {
+      await mkdir(outDirPath);
     }
   }
 
@@ -259,11 +259,11 @@ async function updateOptionsFromProject(options) {
    *  - enableLegacyTypescriptModuleInterop: true/false.
    */
 
-  const tsConfigPath = _path.join.call(void 0, options.project, "tsconfig.json");
+  const tsConfigPath = join(options.project, "tsconfig.json");
 
   let str;
   try {
-    str = await _fs.readFile.call(void 0, tsConfigPath, "utf8");
+    str = await readFile(tsConfigPath, "utf8");
   } catch (err) {
     console.error("Could not find project tsconfig.json");
     console.error(`  --project=${options.project}`);
@@ -278,7 +278,7 @@ async function updateOptionsFromProject(options) {
 
   const compilerOpts = json.compilerOptions;
   if (compilerOpts.outDir) {
-    options.outDirPath = _path.join.call(void 0, process.cwd(), options.project, compilerOpts.outDir);
+    options.outDirPath = join(process.cwd(), options.project, compilerOpts.outDir);
   }
   if (compilerOpts.esModuleInterop !== true) {
     sucraseOpts.enableLegacyTypeScriptModuleInterop = true;
@@ -311,7 +311,7 @@ async function buildFile(srcPath, outPath, options) {
   if (!options.quiet) {
     console.log(`${srcPath} -> ${outPath}`);
   }
-  const code = (await _fs.readFile.call(void 0, srcPath)).toString();
-  const transformedCode = _index.transform.call(void 0, code, {...options.sucraseOptions, filePath: srcPath}).code;
-  await _fs.writeFile.call(void 0, outPath, transformedCode);
+  const code = (await readFile(srcPath)).toString();
+  const transformedCode = transform(code, {...options.sucraseOptions, filePath: srcPath}).code;
+  await writeFile(outPath, transformedCode);
 }
