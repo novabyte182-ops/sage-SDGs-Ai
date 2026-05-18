@@ -1,70 +1,40 @@
-# VictoryVendor
+<p align="center">
+  <a href="https://tailwindcss.com" target="_blank">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/tailwindlabs/tailwindcss/HEAD/.github/logo-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/tailwindlabs/tailwindcss/HEAD/.github/logo-light.svg">
+      <img alt="Tailwind CSS" src="https://raw.githubusercontent.com/tailwindlabs/tailwindcss/HEAD/.github/logo-light.svg" width="350" height="70" style="max-width: 100%;">
+    </picture>
+  </a>
+</p>
 
-Vendored dependencies for Victory.
+<p align="center">
+  A utility-first CSS framework for rapidly building custom user interfaces.
+</p>
 
-## Background
+<p align="center">
+    <a href="https://github.com/tailwindlabs/tailwindcss/actions"><img src="https://img.shields.io/github/actions/workflow/status/tailwindlabs/tailwindcss/ci.yml?branch=main" alt="Build Status"></a>
+    <a href="https://www.npmjs.com/package/tailwindcss"><img src="https://img.shields.io/npm/dt/tailwindcss.svg" alt="Total Downloads"></a>
+    <a href="https://github.com/tailwindcss/tailwindcss/releases"><img src="https://img.shields.io/npm/v/tailwindcss.svg" alt="Latest Release"></a>
+    <a href="https://github.com/tailwindcss/tailwindcss/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/tailwindcss.svg" alt="License"></a>
+</p>
 
-D3 has released most of its libraries as ESM-only. This means that consumers in Node.js applications can no longer just `require()` anything with a d3 transitive dependency, including much of Victory.
+---
 
-To help provide an easy path to folks still using CommonJS in their Node.js applications that consume Victory, we now provide this package to vendor in various d3-related packages.
+## Documentation
 
-## Packages
+For full documentation, visit [tailwindcss.com](https://tailwindcss.com/).
 
-We presently provide the following top-level libraries:
-<!-- cat packages/victory-vendor/package.json | egrep '"d3-' | egrep -o 'd3-[^"]*'| sor t-->
+## Community
 
-- d3-ease
-- d3-interpolate
-- d3-scale
-- d3-shape
-- d3-timer
+For help, discussion about best practices, or any other conversation that would benefit from being searchable:
 
-This is the total list of top and transitive libraries we vendor:
-<!-- ls packages/victory-vendor/lib-vendor | sort -->
+[Discuss Tailwind CSS on GitHub](https://github.com/tailwindcss/tailwindcss/discussions)
 
-- d3-array
-- d3-color
-- d3-ease
-- d3-format
-- d3-interpolate
-- d3-path
-- d3-scale
-- d3-shape
-- d3-time
-- d3-time-format
-- d3-timer
-- internmap
+For casual chit-chat with others using the framework:
 
-Note that this does _not_ include the following D3 libraries that still support CommonJS:
+[Join the Tailwind CSS Discord Server](https://discord.gg/7NF8GNe)
 
-- d3-voronoi
+## Contributing
 
-## How it works
-
-We provide two alternate paths and behaviors -- for ESM and CommonJS
-
-### ESM
-
-If you do a Node.js import like:
-
-```js
-import { interpolate } from "victory-vendor/d3-interpolate";
-```
-
-under the hood it's going to just re-export and pass you through to `node_modules/d3-interpolate`, the **real** ESM library from D3.
-
-### CommonJS
-
-If you do a Node.js import like:
-
-```js
-const { interpolate } = require("victory-vendor/d3-interpolate");
-```
-
-under the hood it's going to will go to an alternate path that contains the transpiled version of the underlying d3 library to be found at `victory-vendor/lib-vendor/d3-interpolate/**/*.js`. This futher has internally consistent import references to other `victory-vendor/lib-vendor/<pkg-name>` paths.
-
-Note that for some tooling (like Jest) that doesn't play well with `package.json:exports` routing to this CommonJS path, we **also** output a root file in the form of `victory-vendor/d3-interpolate.js`.
-
-## Licenses
-
-This project is released under the MIT license, but the vendor'ed in libraries include other licenses (e.g. ISC) that we enumerate in our `package.json:license` field.
+If you're interested in contributing to Tailwind CSS, please read our [contributing docs](https://github.com/tailwindcss/tailwindcss/blob/main/.github/CONTRIBUTING.md) **before submitting a pull request**.
