@@ -1,70 +1,70 @@
-# Sage SDG AI
+# VictoryVendor
 
-**Tagline:** Your human-like guide for learning, well-being, and clean water action.
+Vendored dependencies for Victory.
 
-**GitHub Repository:** [Sage-SDG-AI](https://github.com/bhattizain2005-ux/Sage-SDG-AI)
+## Background
 
-## About the Project
-Sage SDG AI is an upgraded mega-agent platform designed to address three core Sustainable Development Goals (SDGs). By unifying powerful AI routing and structured datasets, it acts as a centralized support system for global users.
+D3 has released most of its libraries as ESM-only. This means that consumers in Node.js applications can no longer just `require()` anything with a d3 transitive dependency, including much of Victory.
 
-### The Three Core Modules
-1. **Learn Mode (Quality Education - SDG 4)**
-   Provides academic support, simple explanations of complex topics, learning goals, activities, and quizzes.
-2. **MindCare Mode (Mental Health and Well-being - SDG 3)**
-   Acts as a supportive, non-clinical guide for stress and anxiety. Includes reflection prompts, breathing exercises, and strict crisis-safety fallbacks.
-3. **AquaLife Mode (Water Solutions - SDG 6 & SDG 3)**
-   *Upgraded from the previous AquaHealth AI foundation.* Provides water safety guidance, risk scoring for contamination issues, and immediate safety steps.
+To help provide an easy path to folks still using CommonJS in their Node.js applications that consume Victory, we now provide this package to vendor in various d3-related packages.
 
-## System Architecture & AI Routing
-At the core of Sage SDG AI is a unified routing layer located at `/api/sdg-agent`. 
-- **The Routing Flow:** The frontend sends a structured JSON payload containing the user's `message` and selected `mode`. The API parses the request, applies strict safety filters (such as crisis detection or serious symptom overrides), and queries the appropriate local fallback dataset (or future LM Arena endpoints).
-- **Dashboards:** A modern, 40% light, gradient-themed user dashboard houses the `AIChatBox`, allowing seamless, immediate testing of all three modules in one place.
+## Packages
 
-## Datasets
-The AI operates on curated, structured datasets:
-- `educationDataset.ts`
-- `wellbeingDataset.ts`
-- `waterDataset.ts`
-*(These datasets are designed to be expanded and potentially published to Kaggle in the future.)*
+We presently provide the following top-level libraries:
+<!-- cat packages/victory-vendor/package.json | egrep '"d3-' | egrep -o 'd3-[^"]*'| sor t-->
 
-## Safety Rules & Ethics
-- **No Diagnosis or Prescription:** The AI explicitly states it is not a doctor or therapist.
-- **Crisis Overrides:** If severe distress or emergency water-health symptoms are detected, the system immediately bypasses standard responses to deliver crisis-safe guidance and recommends professional help.
+- d3-ease
+- d3-interpolate
+- d3-scale
+- d3-shape
+- d3-timer
 
-## Setup Instructions
-1. Clone the repository.
-2. Install dependencies: `npm install`
-3. Set up the environment variables (see below).
-4. Run the development server: `npm run dev`
-5. Visit `http://localhost:3000`
+This is the total list of top and transitive libraries we vendor:
+<!-- ls packages/victory-vendor/lib-vendor | sort -->
 
-## Environment Variables
-Create a `.env.local` file based on the provided `.env.example`:
-```env
-LM_ARENA_API_KEY=your_lm_arena_api_key_here
-LM_ARENA_API_URL=your_lm_arena_endpoint_here
+- d3-array
+- d3-color
+- d3-ease
+- d3-format
+- d3-interpolate
+- d3-path
+- d3-scale
+- d3-shape
+- d3-time
+- d3-time-format
+- d3-timer
+- internmap
+
+Note that this does _not_ include the following D3 libraries that still support CommonJS:
+
+- d3-voronoi
+
+## How it works
+
+We provide two alternate paths and behaviors -- for ESM and CommonJS
+
+### ESM
+
+If you do a Node.js import like:
+
+```js
+import { interpolate } from "victory-vendor/d3-interpolate";
 ```
 
-## Placeholders
-- **GitHub:** https://github.com/bhattizain2005-ux/Sage-SDG-AI
-- **Vercel:** [Deployment Link Here]
-- **Kaggle:** [Dataset Link Here]
-- **Loom:** [Demo Video Link Here]
+under the hood it's going to just re-export and pass you through to `node_modules/d3-interpolate`, the **real** ESM library from D3.
 
-## Deliverables Checklist
-- [x] Red/Black/Gradient UI Implementation
-- [x] 3 Core Datasets (Learn, MindCare, AquaLife)
-- [x] Unified AI Routing (`/api/sdg-agent`)
-- [x] Safety Fallbacks & Overrides
-- [x] Dashboard Integration
+### CommonJS
 
-## Backup Plan
-If the live deployment fails during presentation, the team will rely on:
-1. Localhost instance (`npm run dev`)
-2. Pre-recorded Loom Demo
-3. Offline presentation slides and screenshots in `/public/screenshots`
+If you do a Node.js import like:
 
-## Future Improvements
-- Integrate LM Arena for dynamic, unscripted responses.
-- Expand datasets and publish to Kaggle.
-- Add multi-language support.
+```js
+const { interpolate } = require("victory-vendor/d3-interpolate");
+```
+
+under the hood it's going to will go to an alternate path that contains the transpiled version of the underlying d3 library to be found at `victory-vendor/lib-vendor/d3-interpolate/**/*.js`. This futher has internally consistent import references to other `victory-vendor/lib-vendor/<pkg-name>` paths.
+
+Note that for some tooling (like Jest) that doesn't play well with `package.json:exports` routing to this CommonJS path, we **also** output a root file in the form of `victory-vendor/d3-interpolate.js`.
+
+## Licenses
+
+This project is released under the MIT license, but the vendor'ed in libraries include other licenses (e.g. ISC) that we enumerate in our `package.json:license` field.
